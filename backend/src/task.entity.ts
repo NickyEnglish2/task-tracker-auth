@@ -10,4 +10,10 @@ export class Task {
 
   @Column({ default: false })
   isCompleted: boolean;
+
+  @Column({ nullable: true })
+  startedAt: Date;
+
+  @Column({ nullable: true })
+  completedAt: Date;
 }

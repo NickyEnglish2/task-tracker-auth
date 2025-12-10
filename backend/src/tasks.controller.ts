@@ -32,4 +32,14 @@ export class TasksController {
   remove(@Param('id') id: string) {
     return this.tasksService.remove(+id);
   }
+
+  @Patch(':id/start')
+  start(@Param('id') id: string) {
+    return this.tasksService.startTask(+id);
+  }
+
+  @Patch(':id/complete')
+  complete(@Param('id') id: string) {
+    return this.tasksService.completeTask(+id);
+  }
 }

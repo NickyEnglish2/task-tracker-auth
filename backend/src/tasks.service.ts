@@ -26,4 +26,15 @@ export class TasksService {
   async remove(id: number): Promise<void> {
     await this.tasksRepository.delete(id);
   }
+
+  async startTask(id: number): Promise<void> {
+    await this.tasksRepository.update(id, { startedAt: new Date() });
+  }
+
+  async completeTask(id: number): Promise<void> {
+    await this.tasksRepository.update(id, {
+      isCompleted: true,
+      completedAt: new Date(),
+    });
+  }
 }
