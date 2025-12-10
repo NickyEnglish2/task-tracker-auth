@@ -8,6 +8,8 @@ interface Task {
   id: number;
   title: string;
   isCompleted: boolean;
+  startedAt?: string;
+  completedAt?: string;
 }
 
 const API_URL = "http://localhost:3000/tasks";
@@ -16,8 +18,6 @@ export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState("");
 
-  // 2. Wrap the function in useCallback
-  // This ensures the function object stays the same between renders
   const fetchTasks = useCallback(async () => {
     try {
       const response = await axios.get(API_URL);
@@ -27,29 +27,37 @@ export default function Home() {
     }
   }, []);
 
-  // 3. Now safely call it in useEffect with the dependency
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchTasks();
-  }, [fetchTasks]); 
+  }, [fetchTasks]);
 
   const addTask = async () => {
     if (!newTask.trim()) return;
     try {
       await axios.post(API_URL, { title: newTask });
       setNewTask("");
-      fetchTasks(); // Re-fetch list
+      fetchTasks();
     } catch (error) {
       console.error("Error adding task", error);
     }
   };
 
-  const toggleTask = async (id: number, isCompleted: boolean) => {
+  const startTask = async (id: number) => {
     try {
-      await axios.patch(`${API_URL}/${id}`, { isCompleted: !isCompleted });
+      await axios.patch(`${API_URL}/${id}/start`);
       fetchTasks();
     } catch (error) {
-      console.error("Error updating task", error);
+      console.error("Error starting task", error);
+    }
+  };
+
+  const completeTask = async (id: number) => {
+    try {
+      await axios.patch(`${API_URL}/${id}/complete`);
+      fetchTasks();
+    } catch (error) {
+      console.error("Error completing task", error);
     }
   };
 
@@ -62,11 +70,23 @@ export default function Home() {
     }
   };
 
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    return date.toLocaleString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.card}>
         <h1>Task Manager</h1>
-        
+
         <div className={styles.inputGroup}>
           <input
             type="text"
@@ -75,28 +95,56 @@ export default function Home() {
             onChange={(e) => setNewTask(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && addTask()}
           />
-          <button onClick={addTask}>Add</button>
+          <button onClick={addTask} className={styles.addBtn}>Add</button>
         </div>
 
         <ul className={styles.taskList}>
           {tasks.map((task) => (
             <li key={task.id}>
               <div className={styles.taskContent}>
-                <input
-                  type="checkbox"
-                  checked={task.isCompleted}
-                  onChange={() => toggleTask(task.id, task.isCompleted)}
-                />
-                <span className={task.isCompleted ? styles.completed : ""}>
-                  {task.title}
-                </span>
+                <div className={styles.taskHeader}>
+                  <span className={styles.taskTitle}>
+                    {task.title}
+                  </span>
+                  <div className={styles.dates}>
+                    {task.startedAt && (
+                      <span className={styles.date}>
+                        Начато: {formatDate(task.startedAt)}
+                      </span>
+                    )}
+                    {task.completedAt && (
+                      <span className={styles.date}>
+                        Завершено: {formatDate(task.completedAt)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className={styles.actions}>
+                  {!task.startedAt && !task.isCompleted && (
+                    <button
+                      onClick={() => startTask(task.id)}
+                      className={styles.startBtn}
+                    >
+                      Start
+                    </button>
+                  )}
+                  {task.startedAt && !task.isCompleted && (
+                    <button
+                      onClick={() => completeTask(task.id)}
+                      className={styles.completeBtn}
+                    >
+                      Complete
+                    </button>
+                  )}
+                  <button
+                    onClick={() => deleteTask(task.id)}
+                    className={styles.deleteBtn}
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
-              <button
-                onClick={() => deleteTask(task.id)}
-                className={styles.deleteBtn}
-              >
-                Delete
-              </button>
             </li>
           ))}
         </ul>
