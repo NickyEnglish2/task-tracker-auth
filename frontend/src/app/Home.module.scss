@@ -11,7 +11,7 @@
   background-color: white;
   padding: 1.5rem;
   border-radius: 0.5rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 10%);
   width: 100%;
   max-width: 28rem;
 
@@ -88,7 +88,7 @@
   span {
     font-size: 1.125rem;
     color: #1f2937;
-    
+
     &.completed {
       text-decoration: line-through;
       color: #9ca3af;
@@ -101,7 +101,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  
+
   &:hover {
     color: #b91c1c;
   }

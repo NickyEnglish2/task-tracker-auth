@@ -1,0 +1,39 @@
+{
+  "name": "task-tracker-auth",
+  "version": "1.0.0",
+  "description": "📌 Task Manager — Monorepo (Next.js + NestJS + PostgreSQL)",
+  "main": "index.js",
+  "scripts": {
+    "prepare": "husky",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "lint-staged": {
+    "frontend/**/*.{js,jsx,ts,tsx}": [
+      "npm run lint:staged --prefix frontend --"
+    ],
+    "frontend/**/*.{css,scss}": [
+      "npm run lint:style:staged --prefix frontend --"
+    ],
+    "backend/**/*.ts": [
+      "npm run lint:staged --prefix backend --"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NickyEnglish2/task-tracker-auth.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/NickyEnglish2/task-tracker-auth/issues"
+  },
+  "homepage": "https://github.com/NickyEnglish2/task-tracker-auth#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^20.2.0",
+    "@commitlint/config-conventional": "^20.2.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7"
+  }
+}
