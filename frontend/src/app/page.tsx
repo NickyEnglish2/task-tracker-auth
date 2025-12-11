@@ -1,98 +1,43 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react"; // 1. Import useCallback
-import axios from "axios";
+import { useState, useEffect } from "react";
+import { observer } from "mobx-react-lite";
 import styles from "./Home.module.scss";
-import { Task } from "@/types/task.types";
+import { taskStore } from "@/lib/state/tasks.store";
+import { formatDate } from "@/lib/format/formatDate";
 
-const API_URL = "http://localhost:3000/tasks";
-
-export default function Home() {
-  const [tasks, setTasks] = useState<Task[]>([]);
+const Home = observer(() => {
   const [newTask, setNewTask] = useState("");
 
-  const fetchTasks = useCallback(async () => {
-    try {
-      const response = await axios.get(API_URL);
-      setTasks(response.data);
-    } catch (error) {
-      console.error("Error connecting to backend", error);
-    }
+  useEffect(() => {
+    taskStore.loadTasks();
   }, []);
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchTasks();
-  }, [fetchTasks]);
-
-  const addTask = async () => {
+  const handleAddTask = async () => {
     if (!newTask.trim()) return;
-    try {
-      await axios.post(API_URL, { title: newTask });
-      setNewTask("");
-      fetchTasks();
-    } catch (error) {
-      console.error("Error adding task", error);
-    }
-  };
-
-  const startTask = async (id: number) => {
-    try {
-      await axios.patch(`${API_URL}/${id}/start`);
-      fetchTasks();
-    } catch (error) {
-      console.error("Error starting task", error);
-    }
-  };
-
-  const completeTask = async (id: number) => {
-    try {
-      await axios.patch(`${API_URL}/${id}/complete`);
-      fetchTasks();
-    } catch (error) {
-      console.error("Error completing task", error);
-    }
-  };
-
-  const deleteTask = async (id: number) => {
-    try {
-      await axios.delete(`${API_URL}/${id}`);
-      fetchTasks();
-    } catch (error) {
-      console.error("Error deleting task", error);
-    }
-  };
-
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return null;
-    const date = new Date(dateString);
-    return date.toLocaleString("en-GB", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    await taskStore.addTask(newTask);
+    setNewTask("");
   };
 
   return (
     <div className={styles.container}>
       <div className={styles.card}>
-        <h1>Task Manager</h1>
+        <h1>Управление задачами</h1>
 
         <div className={styles.inputGroup}>
           <input
+            name="newTask"
             type="text"
-            placeholder="New Task..."
+            placeholder="Новая задача..."
             value={newTask}
             onChange={(e) => setNewTask(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && addTask()}
+            onKeyDown={(e) => e.key === 'Enter' && handleAddTask()}
           />
-          <button onClick={addTask} className={styles.addBtn}>Add</button>
+          <button onClick={handleAddTask} className={styles.addBtn}>Добавить задачу</button>
         </div>
 
         <ul className={styles.taskList}>
-          {tasks.map((task) => (
+          {taskStore.tasks.map((task) => (
             <li key={task.id}>
               <div className={styles.taskContent}>
                 <div className={styles.taskHeader}>
@@ -116,25 +61,25 @@ export default function Home() {
                 <div className={styles.actions}>
                   {!task.startedAt && !task.isCompleted && (
                     <button
-                      onClick={() => startTask(task.id)}
+                      onClick={() => taskStore.startTask(task.id)}
                       className={styles.startBtn}
                     >
-                      Start
+                      Начать выполнение
                     </button>
                   )}
                   {task.startedAt && !task.isCompleted && (
                     <button
-                      onClick={() => completeTask(task.id)}
+                      onClick={() => taskStore.completeTask(task.id)}
                       className={styles.completeBtn}
                     >
-                      Complete
+                      Завершить задачу
                     </button>
                   )}
                   <button
-                    onClick={() => deleteTask(task.id)}
+                    onClick={() => taskStore.deleteTask(task.id)}
                     className={styles.deleteBtn}
                   >
-                    Delete
+                    Удалить
                   </button>
                 </div>
               </div>
@@ -144,4 +89,6 @@ export default function Home() {
       </div>
     </div>
   );
-}
+});
+
+export default Home;
