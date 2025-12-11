@@ -27,14 +27,20 @@ export class TasksService {
     await this.tasksRepository.delete(id);
   }
 
-  async startTask(id: number): Promise<void> {
+  async startTask(id: number): Promise<Task> {
     await this.tasksRepository.update(id, { startedAt: new Date() });
+    const task = await this.tasksRepository.findOne({ where: { id } });
+    if (!task) throw new Error(`Task with id ${id} not found`);
+    return task;
   }
 
-  async completeTask(id: number): Promise<void> {
+  async completeTask(id: number): Promise<Task> {
     await this.tasksRepository.update(id, {
       isCompleted: true,
       completedAt: new Date(),
     });
+    const task = await this.tasksRepository.findOne({ where: { id } });
+    if (!task) throw new Error(`Task with id ${id} not found`);
+    return task;
   }
 }
