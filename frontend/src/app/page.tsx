@@ -3,14 +3,7 @@
 import { useState, useEffect, useCallback } from "react"; // 1. Import useCallback
 import axios from "axios";
 import styles from "./Home.module.scss";
-
-interface Task {
-  id: number;
-  title: string;
-  isCompleted: boolean;
-  startedAt?: string;
-  completedAt?: string;
-}
+import { Task } from "@/types/task.types";
 
 const API_URL = "http://localhost:3000/tasks";
 
